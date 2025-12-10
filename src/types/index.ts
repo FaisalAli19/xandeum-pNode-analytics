@@ -1,6 +1,6 @@
 export interface PNode {
   identity: string;
-  status: 'active' | 'syncing' | 'inactive';
+  status: 'active' | 'inactive';
   uptime: number;
   performance: number;
   lastHeartbeat: Date | string;
@@ -23,11 +23,11 @@ export interface PNodeStoreState {
   searchQuery: string;
   sortBy: keyof PNode;
   sortOrder: 'asc' | 'desc';
-  filterStatus: 'all' | 'active' | 'syncing' | 'inactive';
+  filterStatus: 'all' | 'active' | 'inactive';
   currentPage: number;
   itemsPerPage: number;
 }
 
 export type SortKey = keyof PNode;
-export type FilterStatus = 'all' | 'active' | 'syncing' | 'inactive';
+export type FilterStatus = 'all' | 'active' | 'inactive';
 export type SortOrder = 'asc' | 'desc';

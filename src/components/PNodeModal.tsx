@@ -1,8 +1,9 @@
 import { Badge, Box, Button, Dialog, Flex, HStack, Text } from '@chakra-ui/react';
-import { LuCopy } from 'react-icons/lu';
+import { LuCopy, LuInfo } from 'react-icons/lu';
 import { useState } from 'react';
 import { toaster } from './ui/toaster';
 import { useColorMode } from './ui/color-mode';
+import { Tooltip } from './ui/tooltip';
 import type { PNode } from '../types';
 import { formatTime } from '../utils/format';
 import {
@@ -28,12 +29,12 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
 
   if (!pNode) return null;
 
-  const handleCopyPeerId = async () => {
+  const handleCopyAddress = async () => {
     await navigator.clipboard.writeText(pNode.peerId);
     setCopied(true);
     toaster.create({
       title: 'Copied!',
-      description: 'Peer ID copied to clipboard',
+      description: 'Address copied to clipboard',
       type: 'success',
       duration: 2000,
     });
@@ -54,9 +55,24 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
               borderBottom="1px solid"
               borderColor="border"
             >
-              <HStack gap="12" flexWrap="wrap">
-                <Text as="h2" fontSize="xl" color="primary" m="0">
-                  {pNode.identity}
+              <Text as="h2" fontSize="xl" color="primary" m="0">
+                PNode Details
+              </Text>
+              <Dialog.CloseTrigger />
+            </Flex>
+          </Dialog.Header>
+
+          <Dialog.Body>
+            <Box mb="16">
+              <Flex
+                justify="space-between"
+                align="center"
+                py="12"
+                borderBottom="1px solid"
+                borderColor="border"
+              >
+                <Text color="fg.muted" fontWeight="medium">
+                  Status
                 </Text>
                 <Badge
                   colorPalette={getStatusBadge(pNode.status)}
@@ -74,13 +90,8 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
                 >
                   {pNode.status.toUpperCase()}
                 </Badge>
-              </HStack>
-              <Dialog.CloseTrigger />
-            </Flex>
-          </Dialog.Header>
+              </Flex>
 
-          <Dialog.Body>
-            <Box mb="16">
               <Flex
                 justify="space-between"
                 align="center"
@@ -116,15 +127,23 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
                 borderBottom="1px solid"
                 borderColor="border"
               >
-                <Text color="fg.muted" fontWeight="medium">
-                  Performance Score
-                </Text>
+                <HStack gap="8">
+                  <Text color="fg.muted" fontWeight="medium">
+                    Performance Score
+                  </Text>
+                  <Tooltip content="Performance score (0-100) is calculated from: Storage usage (optimal around 50%), Uptime duration, Recency of activity, and Public status bonus.">
+                    <Box as="span" cursor="help" color="fg.muted">
+                      <LuInfo size={16} />
+                    </Box>
+                  </Tooltip>
+                </HStack>
                 <Badge
                   colorPalette={getPerformanceBadge(pNode.performance)}
                   variant="outline"
                   fontSize="sm"
                   px="10"
                   py="4"
+                  w="fit-content"
                   css={{
                     bg: getBadgeColor(getPerformanceBadge(pNode.performance), isDarkMode),
                     borderColor: getBadgeBorderColor(getPerformanceBadge(pNode.performance)),
@@ -133,7 +152,7 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
                     fontWeight: '600',
                   }}
                 >
-                  {pNode.performance}/100
+                  {pNode.performance.toFixed(2)}/100
                 </Badge>
               </Flex>
 
@@ -144,15 +163,23 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
                 borderBottom="1px solid"
                 borderColor="border"
               >
-                <Text color="fg.muted" fontWeight="medium">
-                  Reputation
-                </Text>
+                <HStack gap="8">
+                  <Text color="fg.muted" fontWeight="medium">
+                    Reputation
+                  </Text>
+                  <Tooltip content="Reputation score (0-10) is calculated from: Uptime (up to 10 points), Storage commitment (up to 5 points), Recency (up to 5 points), Public status (+2 points), and Version (+1 point).">
+                    <Box as="span" cursor="help" color="fg.muted">
+                      <LuInfo size={16} />
+                    </Box>
+                  </Tooltip>
+                </HStack>
                 <Badge
                   colorPalette={getReputationBadge(pNode.reputation)}
                   variant="outline"
                   fontSize="sm"
                   px="10"
                   py="4"
+                  w="fit-content"
                   css={{
                     bg: getBadgeColor(getReputationBadge(pNode.reputation), isDarkMode),
                     borderColor: getBadgeBorderColor(getReputationBadge(pNode.reputation)),
@@ -173,7 +200,7 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
                 borderColor="border"
               >
                 <Text color="fg.muted" fontWeight="medium">
-                  Peer ID
+                  Address
                 </Text>
                 <HStack
                   as="button"
@@ -185,13 +212,13 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
                   bg={copied ? 'green.200' : 'secondary'}
                   borderRadius="sm"
                   cursor="pointer"
-                  onClick={handleCopyPeerId}
+                  onClick={handleCopyAddress}
                   _hover={{ bg: 'secondary.hover' }}
                   title={pNode.peerId}
                   gap="4"
                   transition="color 0.2s"
                 >
-                  <Text>{copied ? 'Copied!' : `${pNode.peerId.substring(0, 16)}...`}</Text>
+                  <Text>{copied ? 'Copied!' : pNode.peerId}</Text>
                   <LuCopy size={14} />
                 </HStack>
               </Flex>
@@ -217,36 +244,10 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
                 borderColor="border"
               >
                 <Text color="fg.muted" fontWeight="medium">
-                  Slots Produced
-                </Text>
-                <Text fontWeight="semibold">{pNode.slotsProduced.toLocaleString()}</Text>
-              </Flex>
-
-              <Flex
-                justify="space-between"
-                align="center"
-                py="12"
-                borderBottom="1px solid"
-                borderColor="border"
-              >
-                <Text color="fg.muted" fontWeight="medium">
-                  Slots Skipped
-                </Text>
-                <Text fontWeight="semibold">{pNode.slotsSkipped}</Text>
-              </Flex>
-
-              <Flex
-                justify="space-between"
-                align="center"
-                py="12"
-                borderBottom="1px solid"
-                borderColor="border"
-              >
-                <Text color="fg.muted" fontWeight="medium">
                   Storage Usage
                 </Text>
                 <Text fontWeight="semibold">
-                  {pNode.storageUsed.toFixed(1)} GB / {pNode.storageCap} GB
+                  {pNode.storageUsed.toFixed(1)} GB / {pNode.storageCap.toFixed(1)} GB
                 </Text>
               </Flex>
 

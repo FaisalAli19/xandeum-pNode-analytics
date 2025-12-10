@@ -1,4 +1,4 @@
-import type { PNodeStoreState } from '../types';
+import type { PNodeStoreState } from '@/types';
 
 type Listener = (state: PNodeStoreState) => void;
 

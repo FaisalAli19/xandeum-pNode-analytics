@@ -16,7 +16,7 @@ export const FilterTabs = ({ filterStatus, onFilterChange, pNodes }: FilterTabsP
 
   return (
     <HStack gap="8" mb="16" flexWrap="wrap">
-      {(['all', 'active', 'syncing', 'inactive'] as const).map((status) => (
+      {(['all', 'active', 'inactive'] as const).map((status) => (
         <Button
           key={status}
           variant={filterStatus === status ? 'solid' : 'outline'}

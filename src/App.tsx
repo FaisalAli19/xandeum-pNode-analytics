@@ -1,7 +1,7 @@
 import { Box, Text } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { pNodeStore } from './store/pNodeStore';
-import { mockFetchPNodes } from './services/pNodeService';
+import { useFetchPods } from './hooks/useFetchPods';
 import { applyFilters } from './utils/filters';
 import type { PNodeStoreState, SortKey, FilterStatus } from './types';
 import { Header } from './components/Header';
@@ -28,80 +28,31 @@ function Main() {
   const [timeUntilRefresh, setTimeUntilRefresh] = useState(59);
   const [refreshProgress, setRefreshProgress] = useState(100);
 
+  // Fetch pods data (polls every 60s)
+  // Note: The IP is configured in vite.config.ts proxy settings
+  const {
+    isLoading,
+    error: fetchError,
+    refetch,
+  } = useFetchPods({
+    refetchInterval: 60000,
+    enabled: true,
+  });
+
+  // Subscribe to store updates
   useEffect(() => {
     const unsubscribe = pNodeStore.subscribe(setState);
     return unsubscribe;
   }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const currentState = pNodeStore.getState();
-      pNodeStore.setState({ loading: true, error: null });
-      try {
-        const pNodes = await mockFetchPNodes();
-        const filteredPNodes = applyFilters(pNodes, {
-          filterStatus: currentState.filterStatus,
-          searchQuery: currentState.searchQuery,
-          sortBy: currentState.sortBy,
-          sortOrder: currentState.sortOrder,
-        });
-
-        pNodeStore.setState({
-          pNodes,
-          filteredPNodes,
-          loading: false,
-          lastUpdated: new Date(),
-          error: null,
-        });
-        setTimeUntilRefresh(59);
-        setRefreshProgress(100);
-      } catch (error) {
-        pNodeStore.setState({
-          error: error instanceof Error ? error.message : 'Failed to fetch pNodes',
-          loading: false,
-        });
-      }
-    };
-
-    // Initial fetch only - countdown timer will handle subsequent refreshes
-    fetchData();
-  }, []);
-
-  // Timer countdown effect
+  // Timer countdown effect (syncs with 60s polling)
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeUntilRefresh((prev) => {
         if (prev === 0) {
-          // When timer reaches 0s, trigger refresh and reset to 59
-          const fetchData = async () => {
-            const currentState = pNodeStore.getState();
-            pNodeStore.setState({ loading: true, error: null });
-            try {
-              const pNodes = await mockFetchPNodes();
-              const filteredPNodes = applyFilters(pNodes, {
-                filterStatus: currentState.filterStatus,
-                searchQuery: currentState.searchQuery,
-                sortBy: currentState.sortBy,
-                sortOrder: currentState.sortOrder,
-              });
-
-              pNodeStore.setState({
-                pNodes,
-                filteredPNodes,
-                loading: false,
-                lastUpdated: new Date(),
-                error: null,
-              });
-            } catch (error) {
-              pNodeStore.setState({
-                error: error instanceof Error ? error.message : 'Failed to fetch pNodes',
-                loading: false,
-              });
-            }
-          };
-          fetchData();
-          setRefreshProgress(100); // Reset progress to 100% when starting new countdown
-          return 59; // Start countdown from 59
+          // Reset to 59 when data refetches
+          setRefreshProgress(100);
+          return 59;
         }
         const newVal = prev - 1;
         // Progress decreases as countdown decreases: 100% at 59s, 0% at 0s
@@ -113,34 +64,49 @@ function Main() {
     return () => clearInterval(timer);
   }, []);
 
+  // Reset timer when data is fetched
+  useEffect(() => {
+    if (state.lastUpdated) {
+      // Use setTimeout to avoid calling setState synchronously in effect
+      setTimeout(() => {
+        setTimeUntilRefresh(59);
+        setRefreshProgress(100);
+      }, 0);
+    }
+  }, [state.lastUpdated]);
+
   const handleSearch = (query: string) => {
+    const currentState = pNodeStore.getState();
     pNodeStore.setState({ searchQuery: query, currentPage: 1 });
-    const filtered = applyFilters(state.pNodes, {
-      filterStatus: state.filterStatus,
+    const filtered = applyFilters(currentState.pNodes, {
+      filterStatus: currentState.filterStatus,
       searchQuery: query,
-      sortBy: state.sortBy,
-      sortOrder: state.sortOrder,
+      sortBy: currentState.sortBy,
+      sortOrder: currentState.sortOrder,
     });
     pNodeStore.setState({ filteredPNodes: filtered });
   };
 
   const handleFilterStatus = (status: FilterStatus) => {
+    const currentState = pNodeStore.getState();
     pNodeStore.setState({ filterStatus: status, currentPage: 1 });
-    const filtered = applyFilters(state.pNodes, {
+    const filtered = applyFilters(currentState.pNodes, {
       filterStatus: status,
-      searchQuery: state.searchQuery,
-      sortBy: state.sortBy,
-      sortOrder: state.sortOrder,
+      searchQuery: currentState.searchQuery,
+      sortBy: currentState.sortBy,
+      sortOrder: currentState.sortOrder,
     });
     pNodeStore.setState({ filteredPNodes: filtered });
   };
 
   const handleSort = (key: SortKey) => {
-    const newOrder = state.sortBy === key && state.sortOrder === 'asc' ? 'desc' : 'asc';
+    const currentState = pNodeStore.getState();
+    const newOrder =
+      currentState.sortBy === key && currentState.sortOrder === 'asc' ? 'desc' : 'asc';
     pNodeStore.setState({ sortBy: key, sortOrder: newOrder, currentPage: 1 });
-    const filtered = applyFilters(state.pNodes, {
-      filterStatus: state.filterStatus,
-      searchQuery: state.searchQuery,
+    const filtered = applyFilters(currentState.pNodes, {
+      filterStatus: currentState.filterStatus,
+      searchQuery: currentState.searchQuery,
       sortBy: key,
       sortOrder: newOrder,
     });
@@ -148,16 +114,7 @@ function Main() {
   };
 
   const handleRefresh = () => {
-    pNodeStore.setState({ loading: true });
-    setTimeout(() => {
-      const filtered = applyFilters(state.pNodes, {
-        filterStatus: state.filterStatus,
-        searchQuery: state.searchQuery,
-        sortBy: state.sortBy,
-        sortOrder: state.sortOrder,
-      });
-      pNodeStore.setState({ filteredPNodes: filtered, loading: false });
-    }, 500);
+    refetch();
   };
 
   const handleSelectPNode = (pNode: PNodeStoreState['selectedPNode']) => {
@@ -189,7 +146,7 @@ function Main() {
       <Header activePNodes={stats.activePNodes} lastUpdated={state.lastUpdated} />
 
       <Box as="main" maxW="1400px" mx="auto" px="20" py="20">
-        {state.error && (
+        {(state.error || fetchError) && (
           <Box
             bg="rgba(255, 84, 89, 0.1)"
             border="1px solid"
@@ -199,7 +156,7 @@ function Main() {
             color="error"
             mb="16"
           >
-            ❌ {state.error}
+            ❌ {state.error || fetchError}
           </Box>
         )}
 
@@ -208,7 +165,7 @@ function Main() {
           timeUntilRefresh={timeUntilRefresh}
           refreshProgress={refreshProgress}
           onRefresh={handleRefresh}
-          loading={state.loading}
+          loading={state.loading || isLoading}
         />
 
         <SearchBar value={state.searchQuery} onChange={handleSearch} />
@@ -219,7 +176,7 @@ function Main() {
           pNodes={state.pNodes}
         />
 
-        {state.loading && state.pNodes.length === 0 && (
+        {(state.loading || isLoading) && state.pNodes.length === 0 && (
           <Box>
             <Text textAlign="center" color="fg.muted" mb="16" fontSize="sm">
               ⏳ Loading pNodes...
@@ -228,13 +185,13 @@ function Main() {
           </Box>
         )}
 
-        {state.loading && state.pNodes.length > 0 && (
+        {(state.loading || isLoading) && state.pNodes.length > 0 && (
           <Box opacity={0.6} pointerEvents="none">
             <SkeletonLoader />
           </Box>
         )}
 
-        {!state.loading && state.pNodes.length > 0 && (
+        {!state.loading && !isLoading && state.pNodes.length > 0 && (
           <>
             <PNodeTable
               pNodes={paginatedPNodes}

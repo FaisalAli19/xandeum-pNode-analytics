@@ -5,7 +5,6 @@ export const getStatusBadge = (
 ): 'success' | 'warning' | 'error' | 'info' => {
   const badges: Record<PNode['status'], 'success' | 'warning' | 'error' | 'info'> = {
     active: 'success',
-    syncing: 'warning',
     inactive: 'error',
   };
   return badges[status] || 'info';
@@ -18,9 +17,10 @@ export const getUptimeBadge = (uptime: number): 'success' | 'warning' | 'error' 
 };
 
 export const getReputationBadge = (reputation: number): 'success' | 'warning' | 'error' => {
-  if (reputation >= 95) return 'success';
-  if (reputation >= 80) return 'warning';
-  return 'error';
+  // Reputation is 0-10 scale, so adjust thresholds accordingly
+  if (reputation >= 8) return 'success'; // 8-10 is excellent
+  if (reputation >= 5) return 'warning'; // 5-7.9 is good
+  return 'error'; // 0-4.9 is poor
 };
 
 export const getPerformanceBadge = (performance: number): 'success' | 'warning' | 'error' => {

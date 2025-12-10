@@ -17,6 +17,7 @@ export const Pagination = ({ currentPage, totalPages, onPageChange }: Pagination
         color="fg"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
+        minW="120px"
         _hover={{
           bg: 'secondary.hover',
           color: 'fg',
@@ -45,6 +46,7 @@ export const Pagination = ({ currentPage, totalPages, onPageChange }: Pagination
         color="fg"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
+        minW="120px"
         _hover={{
           bg: 'secondary.hover',
           color: 'fg',

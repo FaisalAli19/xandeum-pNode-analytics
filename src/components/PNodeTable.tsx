@@ -90,7 +90,9 @@ export const PNodeTable = ({ pNodes, sortBy, sortOrder, onSort, onView }: PNodeT
           {pNodes.map((pNode) => (
             <Table.Row key={pNode.identity}>
               <Table.Cell>
-                <Text fontWeight="bold">{pNode.identity}</Text>
+                <Text fontWeight="bold" truncate maxW="200px" title={pNode.identity}>
+                  {pNode.identity}
+                </Text>
               </Table.Cell>
               <Table.Cell>
                 <Badge
@@ -202,7 +204,7 @@ export const PNodeTable = ({ pNodes, sortBy, sortOrder, onSort, onView }: PNodeT
               </Table.Cell>
               <Table.Cell>{formatTime(pNode.lastHeartbeat)}</Table.Cell>
               <Table.Cell>
-                {pNode.storageUsed.toFixed(1)} GB / {pNode.storageCap} GB
+                {pNode.storageUsed.toFixed(1)} GB / {pNode.storageCap.toFixed(1)} GB
               </Table.Cell>
               <Table.Cell>
                 <Badge
