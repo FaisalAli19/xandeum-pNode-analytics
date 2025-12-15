@@ -5,7 +5,6 @@ import { useFetchPods } from "./hooks/useFetchPods";
 import { applyFilters } from "./utils/filters";
 import type { PNodeStoreState, SortKey, FilterStatus } from "./types";
 import { Header } from "./components/Header";
-import { StatsCards } from "./components/StatsCards";
 import { SearchBar } from "./components/SearchBar";
 import { FilterTabs } from "./components/FilterTabs";
 import { PNodeTable } from "./components/PNodeTable";
@@ -14,6 +13,7 @@ import { Pagination } from "./components/Pagination";
 import { SkeletonLoader } from "./components/SkeletonLoader";
 import { Footer } from "./components/Footer";
 import { Toaster } from "./components/ui/toaster";
+import { AnalyticsCharts } from "./components/AnalyticsCharts";
 
 function App() {
   return (
@@ -27,7 +27,6 @@ function Main() {
   const [state, setState] = useState<PNodeStoreState>(pNodeStore.getState());
   const [showModal, setShowModal] = useState(false);
   const [timeUntilRefresh, setTimeUntilRefresh] = useState(59);
-  const [refreshProgress, setRefreshProgress] = useState(100);
 
   // Fetch pods data (polls every 60s)
   // Note: The IP is configured in vite.config.ts proxy settings
@@ -60,10 +59,7 @@ function Main() {
           }
           return 0; // Stay at 0 until data fetch completes and resets this
         }
-        const newVal = prev - 1;
-        // Progress decreases as countdown decreases: 100% at 59s, 0% at 0s
-        setRefreshProgress((newVal / 59) * 100);
-        return newVal;
+        return prev - 1;
       });
     }, 1000);
 
@@ -76,7 +72,6 @@ function Main() {
       // Use setTimeout to avoid calling setState synchronously in effect
       setTimeout(() => {
         setTimeUntilRefresh(59);
-        setRefreshProgress(100);
       }, 0);
     }
   }, [state.lastUpdated]);
@@ -187,13 +182,16 @@ function Main() {
           </Box>
         )}
 
-        <StatsCards
-          stats={stats}
-          timeUntilRefresh={timeUntilRefresh}
-          refreshProgress={refreshProgress}
-          onRefresh={handleRefresh}
-          loading={state.loading || isLoading}
-        />
+        {/* Analytics Charts - Only show when we have data */}
+        {state.pNodes.length > 0 && (
+          <AnalyticsCharts
+            pNodes={state.pNodes}
+            stats={stats}
+            timeUntilRefresh={timeUntilRefresh}
+            onRefresh={handleRefresh}
+            isRefreshing={state.loading || isLoading}
+          />
+        )}
 
         <SearchBar value={state.searchQuery} onChange={handleSearch} />
 

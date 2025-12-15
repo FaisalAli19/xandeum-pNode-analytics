@@ -1,4 +1,4 @@
-import type { PNode } from '../types';
+import type { PNode } from "../types";
 
 interface PodWithStats {
   address?: string;
@@ -17,13 +17,13 @@ interface PodWithStats {
  * Calculate node status based on last seen timestamp
  * Returns 'active' if seen within last 5 minutes, otherwise 'inactive'
  */
-function calculateStatus(lastSeenTimestamp: number): 'active' | 'inactive' {
+function calculateStatus(lastSeenTimestamp: number): "active" | "inactive" {
   const now = Math.floor(Date.now() / 1000); // Current time in seconds
   const timeSinceLastSeen = now - lastSeenTimestamp;
   const minutesSinceLastSeen = timeSinceLastSeen / 60;
 
   // Active if seen within last 5 minutes, otherwise inactive
-  return minutesSinceLastSeen < 5 ? 'active' : 'inactive';
+  return minutesSinceLastSeen < 5 ? "active" : "inactive";
 }
 
 /**
@@ -107,7 +107,7 @@ function calculatePerformance(pod: PodWithStats): number {
 
   // Factor 4: Public status (public nodes are generally better)
   if (pod.is_public) {
-    score += 10;
+    score += 100;
     factors++;
   }
 
@@ -194,9 +194,9 @@ export function transformPodToPNode(pod: PodWithStats): PNode {
   const uptimeSeconds = pod.uptime || 0;
 
   // Ensure pubkey exists (should be guaranteed by filter, but adding safety check)
-  const pubkey = pod.pubkey || 'unknown';
-  if (pubkey === 'unknown') {
-    console.warn('Pod without pubkey encountered:', pod);
+  const pubkey = pod.pubkey || "unknown";
+  if (pubkey === "unknown") {
+    console.warn("Pod without pubkey encountered:", pod);
   }
 
   return {
@@ -210,7 +210,7 @@ export function transformPodToPNode(pod: PodWithStats): PNode {
     slotsProduced: 0, // Not available in API
     slotsSkipped: 0, // Not available in API
     peerId: pod.address || pubkey, // Use address if available, fallback to pubkey
-    version: pod.version || 'unknown',
+    version: pod.version || "unknown",
     reputation: calculateReputation(pod),
   };
 }
@@ -221,7 +221,9 @@ export function transformPodToPNode(pod: PodWithStats): PNode {
  */
 export function transformPodsToPNodes(pods: PodWithStats[]): PNode[] {
   // Filter out pods without pubkeys
-  const podsWithPubkeys = pods.filter((pod) => pod.pubkey && pod.pubkey.trim() !== '');
+  const podsWithPubkeys = pods.filter(
+    (pod) => pod.pubkey && pod.pubkey.trim() !== ""
+  );
 
   // Deduplicate by pubkey - keep the most recent one (highest last_seen_timestamp)
   const uniquePodsMap = new Map<string, PodWithStats>();
