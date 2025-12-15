@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Progress, Text } from '@chakra-ui/react';
+import { Box, Button, Grid, Progress, Text } from "@chakra-ui/react";
 
 interface StatsCardsProps {
   stats: {
@@ -22,7 +22,11 @@ export const StatsCards = ({
 }: StatsCardsProps) => {
   return (
     <Grid
-      templateColumns={{ base: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)', lg: 'repeat(5, 1fr)' }}
+      templateColumns={{
+        base: "repeat(2, 1fr)",
+        md: "repeat(4, 1fr)",
+        lg: "repeat(5, 1fr)",
+      }}
       gap="16"
       mb="20"
     >
@@ -74,7 +78,8 @@ export const StatsCards = ({
           {stats.activePNodes}
         </Text>
         <Text fontSize="sm" color="fg.muted" mt="4">
-          {((stats.activePNodes / stats.totalPNodes) * 100 || 0).toFixed(1)}% online
+          {((stats.activePNodes / stats.totalPNodes) * 100 || 0).toFixed(1)}%
+          online
         </Text>
       </Box>
 
@@ -165,9 +170,14 @@ export const StatsCards = ({
           Next Refresh
         </Text>
         <Text fontSize="2xl" fontWeight="bold" color="primary" m="0">
-          {timeUntilRefresh}s
+          {loading ? "Refreshing..." : `${timeUntilRefresh}s`}
         </Text>
-        <Progress.Root value={refreshProgress} mt="12" size="sm" colorPalette="teal">
+        <Progress.Root
+          value={refreshProgress}
+          mt="12"
+          size="sm"
+          colorPalette="teal"
+        >
           <Progress.Track>
             <Progress.Range />
           </Progress.Track>

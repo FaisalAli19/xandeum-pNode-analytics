@@ -36,7 +36,7 @@ function Main() {
     error: fetchError,
     refetch,
   } = useFetchPods({
-    refetchInterval: 60000,
+    refetchInterval: 0, // Disable auto-refetch, driven by UI timer
     enabled: true,
   });
 
@@ -54,6 +54,10 @@ function Main() {
     const timer = setInterval(() => {
       setTimeUntilRefresh((prev) => {
         if (prev <= 0) {
+          // Trigger refresh when timer hits 0 (and isn't already loading)
+          if (!isLoading && !state.loading) {
+            refetch();
+          }
           return 0; // Stay at 0 until data fetch completes and resets this
         }
         const newVal = prev - 1;
