@@ -1,7 +1,7 @@
 import { Badge, Box, Button, Progress, Table, Text } from "@chakra-ui/react";
-import { useColorMode } from "../components/ui/color-mode";
-import type { PNode, SortKey } from "../types";
-import { formatTime } from "../utils/format";
+import { useColorMode } from "@/components/ui/color-mode";
+import type { PNode, SortKey } from "@/types";
+import { formatTime } from "@/utils/format";
 import {
   getStatusBadge,
   getUptimeBadge,
@@ -10,7 +10,7 @@ import {
   getBadgeColor,
   getBadgeBorderColor,
   getBadgeTextColor,
-} from "../utils/badges";
+} from "@/utils/badges";
 
 interface PNodeTableProps {
   pNodes: PNode[];

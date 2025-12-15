@@ -1,19 +1,19 @@
 import { Box, Flex, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { pNodeStore } from "./store/pNodeStore";
-import { useFetchPods } from "./hooks/useFetchPods";
-import { applyFilters } from "./utils/filters";
-import type { PNodeStoreState, SortKey, FilterStatus } from "./types";
-import { Header } from "./components/Header";
-import { SearchBar } from "./components/SearchBar";
-import { FilterTabs } from "./components/FilterTabs";
-import { PNodeTable } from "./components/PNodeTable";
-import { PNodeModal } from "./components/PNodeModal";
-import { Pagination } from "./components/Pagination";
-import { SkeletonLoader } from "./components/SkeletonLoader";
-import { Footer } from "./components/Footer";
-import { Toaster } from "./components/ui/toaster";
-import { AnalyticsCharts } from "./components/AnalyticsCharts";
+import { pNodeStore } from "@/store/pNodeStore";
+import { useFetchPods } from "@/hooks/useFetchPods";
+import { applyFilters } from "@/utils/filters";
+import type { PNodeStoreState, SortKey, FilterStatus } from "@/types";
+import { Header } from "@/components/layout/Header";
+import { SearchBar } from "@/components/SearchBar";
+import { FilterTabs } from "@/components/FilterTabs";
+import { PNodeTable } from "@/components/PNodeTable";
+import { PNodeModal } from "@/components/PNodeModal";
+import { Pagination } from "@/components/Pagination";
+import { SkeletonLoader } from "@/components/SkeletonLoader";
+import { Footer } from "@/components/layout/Footer";
+import { Toaster } from "@/components/ui/toaster";
+import { AnalyticsCharts } from "@/components/AnalyticsCharts";
 
 function App() {
   return (
@@ -28,8 +28,6 @@ function Main() {
   const [showModal, setShowModal] = useState(false);
   const [timeUntilRefresh, setTimeUntilRefresh] = useState(59);
 
-  // Fetch pods data (polls every 60s)
-  // Note: The IP is configured in vite.config.ts proxy settings
   const {
     isLoading,
     error: fetchError,
@@ -39,13 +37,11 @@ function Main() {
     enabled: true,
   });
 
-  // Subscribe to store updates
   useEffect(() => {
     const unsubscribe = pNodeStore.subscribe(setState);
     return unsubscribe;
   }, []);
 
-  // Timer countdown effect (syncs with 60s polling)
   useEffect(() => {
     // Don't countdown if loading
     if (isLoading || state.loading) return;
@@ -57,14 +53,14 @@ function Main() {
           if (!isLoading && !state.loading) {
             refetch();
           }
-          return 0; // Stay at 0 until data fetch completes and resets this
+          return 0;
         }
         return prev - 1;
       });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isLoading, state.loading]);
+  }, [isLoading, state.loading, refetch]);
 
   // Reset timer when data is fetched
   useEffect(() => {

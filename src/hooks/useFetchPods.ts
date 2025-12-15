@@ -3,7 +3,6 @@ import { BrowserPrpcClient } from "../utils/browserPrpcClient";
 import { transformPodsToPNodes } from "../utils/podTransform";
 import { pNodeStore } from "../store/pNodeStore";
 import { applyFilters } from "../utils/filters";
-// import type { PNode } from '../types';
 
 interface UseFetchPodsOptions {
   refetchInterval?: number;
@@ -21,7 +20,6 @@ export const useFetchPods = (options: UseFetchPodsOptions = {}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // IP is configured in vite.config.ts proxy, so we can use any value here
   const client = new BrowserPrpcClient("proxy");
 
   const fetchPods = async () => {
@@ -29,7 +27,6 @@ export const useFetchPods = (options: UseFetchPodsOptions = {}) => {
       setIsLoading(true);
       setError(null);
 
-      // Set loading state in store
       pNodeStore.setState({ loading: true });
 
       // Fetch pods with stats
@@ -42,10 +39,7 @@ export const useFetchPods = (options: UseFetchPodsOptions = {}) => {
       // Transform API response to PNode format
       const pNodes = transformPodsToPNodes(response.pods);
 
-      // Get current store state for filters
       const currentState = pNodeStore.getState();
-
-      // Apply filters to the new data
       const filteredPNodes = applyFilters(pNodes, {
         filterStatus: currentState.filterStatus,
         searchQuery: currentState.searchQuery,
@@ -53,7 +47,6 @@ export const useFetchPods = (options: UseFetchPodsOptions = {}) => {
         sortOrder: currentState.sortOrder,
       });
 
-      // Update store with new data
       pNodeStore.setState({
         pNodes,
         filteredPNodes,
@@ -70,7 +63,6 @@ export const useFetchPods = (options: UseFetchPodsOptions = {}) => {
       setError(errorMessage);
       setIsLoading(false);
 
-      // Update store with error
       pNodeStore.setState({
         loading: false,
         error: errorMessage,
@@ -81,11 +73,7 @@ export const useFetchPods = (options: UseFetchPodsOptions = {}) => {
   useEffect(() => {
     if (!enabled) return;
 
-    // Fetch immediately
-    fetchPods();
-
-    // Set up interval for refetching ONLY if interval is greater than 0
-    let intervalId: NodeJS.Timeout | null = null;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
 
     if (refetchInterval > 0) {
       intervalId = setInterval(() => {

@@ -11,7 +11,8 @@ import {
   RadialBar,
   PolarAngleAxis,
 } from "recharts";
-import type { PNode } from "../types";
+import type { PNode } from "@/types";
+import { chartColors } from "@/theme/chart-colors";
 
 interface AnalyticsChartsProps {
   pNodes: PNode[];
@@ -46,11 +47,7 @@ const CustomTooltip = ({ active, payload }: any) => {
         </Text>
         <Text color="white" fontSize="sm">
           {payload[0].value}
-          {payload[0].name === "Next Refresh"
-            ? "s"
-            : payload[0].name === "nodes"
-            ? ""
-            : "%"}
+          {payload[0].name === "Next Refresh" ? "s" : ""}
         </Text>
       </Box>
     );
@@ -72,8 +69,8 @@ export function AnalyticsCharts({
     const inactiveCount = pNodes.length - activeCount;
 
     return [
-      { name: "Active", value: activeCount, color: "#38A169" }, // green.500
-      { name: "Inactive", value: inactiveCount, color: "#E53E3E" }, // red.500
+      { name: "Active", value: activeCount, color: chartColors.active },
+      { name: "Inactive", value: inactiveCount, color: chartColors.inactive },
     ];
   }, [pNodes]);
 
@@ -83,12 +80,12 @@ export function AnalyticsCharts({
       {
         name: "Avg Uptime",
         value: parseFloat(stats.avgUptime),
-        fill: "#319795", // teal.500
+        fill: chartColors.avgUptime,
       },
       {
         name: "Avg Performance",
         value: parseFloat(stats.avgPerformance),
-        fill: "#D53F8C", // pink.500
+        fill: chartColors.avgPerformance,
       },
     ];
   }, [stats]);
@@ -96,11 +93,15 @@ export function AnalyticsCharts({
   // 3. Refresh Timer Gauge
   const timerData = useMemo(() => {
     return [
-      { name: "Remaining", value: timeUntilRefresh, color: "#319795" }, // teal.500
+      {
+        name: "Remaining",
+        value: timeUntilRefresh,
+        color: chartColors.refreshRemaining,
+      },
       {
         name: "Elapsed",
         value: 60 - timeUntilRefresh,
-        color: "rgba(255,255,255,0.1)",
+        color: chartColors.refreshElapsed,
       },
     ];
   }, [timeUntilRefresh]);
@@ -241,7 +242,7 @@ export function AnalyticsCharts({
                   tick={false}
                 />
                 <RadialBar
-                  background={{ fill: "rgba(255,255,255,0.05)" }}
+                  background={{ fill: chartColors.background }}
                   dataKey="value"
                   isAnimationActive={false}
                 />
@@ -324,7 +325,7 @@ export function AnalyticsCharts({
                 <Text
                   fontSize="3xl"
                   fontWeight="bold"
-                  color="teal.300"
+                  color="primary"
                   lineHeight="1"
                 >
                   {timeUntilRefresh}s

@@ -1,6 +1,5 @@
 import { Button, HStack } from "@chakra-ui/react";
-import type { FilterStatus } from "../types";
-import type { PNode } from "../types";
+import type { FilterStatus, PNode } from "@/types";
 
 interface FilterTabsProps {
   filterStatus: FilterStatus;

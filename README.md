@@ -34,8 +34,10 @@ The pNode Analytics Dashboard provides real-time monitoring and analytics for pe
 ```
 src/
 ├── components/          # React components
+│   ├── layout/          # Layout components (Header, Footer)
+│   │   ├── Header.tsx
+│   │   └── Footer.tsx
 │   ├── ui/              # UI primitives
-│   ├── Header.tsx       # Minimal dashboard header
 │   ├── AnalyticsCharts.tsx # Visual charts (Pie, Radial, Gauge)
 │   ├── SearchBar.tsx    # Search input component
 │   ├── FilterTabs.tsx   # Status filter buttons

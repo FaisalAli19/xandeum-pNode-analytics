@@ -1,11 +1,11 @@
 import { Badge, Box, Dialog, Flex, HStack, Text } from "@chakra-ui/react";
 import { LuCopy, LuInfo, LuX } from "react-icons/lu";
 import { useState } from "react";
-import { toaster } from "./ui/toaster";
-import { useColorMode } from "./ui/color-mode";
-import { Tooltip } from "./ui/tooltip";
-import type { PNode } from "../types";
-import { formatTime } from "../utils/format";
+import { toaster } from "@/components/ui/toaster";
+import { useColorMode } from "@/components/ui/color-mode";
+import { Tooltip } from "@/components/ui/tooltip";
+import type { PNode } from "@/types";
+import { formatTime } from "@/utils/format";
 import {
   getStatusBadge,
   getUptimeBadge,
@@ -14,7 +14,7 @@ import {
   getBadgeColor,
   getBadgeBorderColor,
   getBadgeTextColor,
-} from "../utils/badges";
+} from "@/utils/badges";
 
 interface PNodeModalProps {
   pNode: PNode | null;
