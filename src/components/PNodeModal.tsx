@@ -1,11 +1,11 @@
-import { Badge, Box, Button, Dialog, Flex, HStack, Text } from '@chakra-ui/react';
-import { LuCopy, LuInfo } from 'react-icons/lu';
-import { useState } from 'react';
-import { toaster } from './ui/toaster';
-import { useColorMode } from './ui/color-mode';
-import { Tooltip } from './ui/tooltip';
-import type { PNode } from '../types';
-import { formatTime } from '../utils/format';
+import { Badge, Box, Dialog, Flex, HStack, Text } from "@chakra-ui/react";
+import { LuCopy, LuInfo, LuX } from "react-icons/lu";
+import { useState } from "react";
+import { toaster } from "./ui/toaster";
+import { useColorMode } from "./ui/color-mode";
+import { Tooltip } from "./ui/tooltip";
+import type { PNode } from "../types";
+import { formatTime } from "../utils/format";
 import {
   getStatusBadge,
   getUptimeBadge,
@@ -14,7 +14,7 @@ import {
   getBadgeColor,
   getBadgeBorderColor,
   getBadgeTextColor,
-} from '../utils/badges';
+} from "../utils/badges";
 
 interface PNodeModalProps {
   pNode: PNode | null;
@@ -23,28 +23,48 @@ interface PNodeModalProps {
 }
 
 export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
-  const [copied, setCopied] = useState(false);
+  const [copiedAddress, setCopiedAddress] = useState(false);
+  const [copiedPubKey, setCopiedPubKey] = useState(false);
   const { colorMode } = useColorMode();
-  const isDarkMode = colorMode === 'dark';
+  const isDarkMode = colorMode === "dark";
 
   if (!pNode) return null;
 
   const handleCopyAddress = async () => {
     await navigator.clipboard.writeText(pNode.peerId);
-    setCopied(true);
+    setCopiedAddress(true);
     toaster.create({
-      title: 'Copied!',
-      description: 'Address copied to clipboard',
-      type: 'success',
+      title: "Copied!",
+      description: "Address copied to clipboard",
+      type: "success",
       duration: 2000,
     });
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopiedAddress(false), 2000);
+  };
+
+  const handleCopyPubKey = async () => {
+    await navigator.clipboard.writeText(pNode.identity);
+    setCopiedPubKey(true);
+    toaster.create({
+      title: "Copied!",
+      description: "Public Key copied to clipboard",
+      type: "success",
+      duration: 2000,
+    });
+    setTimeout(() => setCopiedPubKey(false), 2000);
   };
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={(details) => !details.open && onClose()}>
+    <Dialog.Root
+      open={isOpen}
+      onOpenChange={(details) => !details.open && onClose()}
+    >
       <Dialog.Backdrop />
-      <Dialog.Positioner display="flex" alignItems="center" justifyContent="center">
+      <Dialog.Positioner
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
         <Dialog.Content maxW="600px" w="90%" bg="surface" boxShadow="lg">
           <Dialog.Header>
             <Flex
@@ -58,7 +78,9 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
               <Text as="h2" fontSize="xl" color="primary" m="0">
                 PNode Details
               </Text>
-              <Dialog.CloseTrigger />
+              <Dialog.CloseTrigger cursor="pointer">
+                <LuX />
+              </Dialog.CloseTrigger>
             </Flex>
           </Dialog.Header>
 
@@ -82,10 +104,15 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
                   py="4"
                   css={{
                     bg: getBadgeColor(getStatusBadge(pNode.status), isDarkMode),
-                    borderColor: getBadgeBorderColor(getStatusBadge(pNode.status)),
-                    color: getBadgeTextColor(getStatusBadge(pNode.status), isDarkMode),
-                    borderWidth: '1px',
-                    fontWeight: '600',
+                    borderColor: getBadgeBorderColor(
+                      getStatusBadge(pNode.status)
+                    ),
+                    color: getBadgeTextColor(
+                      getStatusBadge(pNode.status),
+                      isDarkMode
+                    ),
+                    borderWidth: "1px",
+                    fontWeight: "600",
                   }}
                 >
                   {pNode.status.toUpperCase()}
@@ -110,10 +137,15 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
                   py="4"
                   css={{
                     bg: getBadgeColor(getUptimeBadge(pNode.uptime), isDarkMode),
-                    borderColor: getBadgeBorderColor(getUptimeBadge(pNode.uptime)),
-                    color: getBadgeTextColor(getUptimeBadge(pNode.uptime), isDarkMode),
-                    borderWidth: '1px',
-                    fontWeight: '600',
+                    borderColor: getBadgeBorderColor(
+                      getUptimeBadge(pNode.uptime)
+                    ),
+                    color: getBadgeTextColor(
+                      getUptimeBadge(pNode.uptime),
+                      isDarkMode
+                    ),
+                    borderWidth: "1px",
+                    fontWeight: "600",
                   }}
                 >
                   {pNode.uptime.toFixed(2)}%
@@ -145,11 +177,19 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
                   py="4"
                   w="fit-content"
                   css={{
-                    bg: getBadgeColor(getPerformanceBadge(pNode.performance), isDarkMode),
-                    borderColor: getBadgeBorderColor(getPerformanceBadge(pNode.performance)),
-                    color: getBadgeTextColor(getPerformanceBadge(pNode.performance), isDarkMode),
-                    borderWidth: '1px',
-                    fontWeight: '600',
+                    bg: getBadgeColor(
+                      getPerformanceBadge(pNode.performance),
+                      isDarkMode
+                    ),
+                    borderColor: getBadgeBorderColor(
+                      getPerformanceBadge(pNode.performance)
+                    ),
+                    color: getBadgeTextColor(
+                      getPerformanceBadge(pNode.performance),
+                      isDarkMode
+                    ),
+                    borderWidth: "1px",
+                    fontWeight: "600",
                   }}
                 >
                   {pNode.performance.toFixed(2)}/100
@@ -181,11 +221,19 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
                   py="4"
                   w="fit-content"
                   css={{
-                    bg: getBadgeColor(getReputationBadge(pNode.reputation), isDarkMode),
-                    borderColor: getBadgeBorderColor(getReputationBadge(pNode.reputation)),
-                    color: getBadgeTextColor(getReputationBadge(pNode.reputation), isDarkMode),
-                    borderWidth: '1px',
-                    fontWeight: '600',
+                    bg: getBadgeColor(
+                      getReputationBadge(pNode.reputation),
+                      isDarkMode
+                    ),
+                    borderColor: getBadgeBorderColor(
+                      getReputationBadge(pNode.reputation)
+                    ),
+                    color: getBadgeTextColor(
+                      getReputationBadge(pNode.reputation),
+                      isDarkMode
+                    ),
+                    borderWidth: "1px",
+                    fontWeight: "600",
                   }}
                 >
                   {pNode.reputation.toFixed(2)}
@@ -206,19 +254,54 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
                   as="button"
                   fontFamily="mono"
                   fontSize="sm"
-                  color={copied ? 'green.800' : 'fg.muted'}
+                  color={copiedAddress ? "green.800" : "fg.muted"}
                   px="8"
                   py="4"
-                  bg={copied ? 'green.200' : 'secondary'}
+                  bg={copiedAddress ? "green.200" : "secondary"}
                   borderRadius="sm"
                   cursor="pointer"
                   onClick={handleCopyAddress}
-                  _hover={{ bg: 'secondary.hover' }}
+                  _hover={{ bg: "secondary.hover" }}
                   title={pNode.peerId}
                   gap="4"
                   transition="color 0.2s"
                 >
-                  <Text>{copied ? 'Copied!' : pNode.peerId}</Text>
+                  <Text truncate maxW="200px">
+                    {copiedAddress ? "Copied!" : pNode.peerId}
+                  </Text>
+                  <LuCopy size={14} />
+                </HStack>
+              </Flex>
+
+              <Flex
+                justify="space-between"
+                align="center"
+                py="12"
+                borderBottom="1px solid"
+                borderColor="border"
+              >
+                <Text color="fg.muted" fontWeight="medium">
+                  Public Key
+                </Text>
+                <HStack
+                  as="button"
+                  fontFamily="mono"
+                  fontSize="sm"
+                  color={copiedPubKey ? "green.800" : "fg.muted"}
+                  px="8"
+                  py="4"
+                  bg={copiedPubKey ? "green.200" : "secondary"}
+                  borderRadius="sm"
+                  cursor="pointer"
+                  onClick={handleCopyPubKey}
+                  _hover={{ bg: "secondary.hover" }}
+                  title={pNode.identity}
+                  gap="4"
+                  transition="color 0.2s"
+                >
+                  <Text truncate maxW="200px">
+                    {copiedPubKey ? "Copied!" : pNode.identity}
+                  </Text>
                   <LuCopy size={14} />
                 </HStack>
               </Flex>
@@ -247,7 +330,8 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
                   Storage Usage
                 </Text>
                 <Text fontWeight="semibold">
-                  {pNode.storageUsed.toFixed(1)} GB / {pNode.storageCap.toFixed(1)} GB
+                  {pNode.storageUsed.toFixed(1)} GB /{" "}
+                  {pNode.storageCap.toFixed(1)} GB
                 </Text>
               </Flex>
 
@@ -255,16 +339,14 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
                 <Text color="fg.muted" fontWeight="medium">
                   Last Heartbeat
                 </Text>
-                <Text fontWeight="semibold">{formatTime(pNode.lastHeartbeat)}</Text>
+                <Text fontWeight="semibold">
+                  {formatTime(pNode.lastHeartbeat)}
+                </Text>
               </Flex>
             </Box>
           </Dialog.Body>
 
-          <Dialog.Footer pt="16" pb="24">
-            <Button colorPalette="teal" onClick={onClose} width="100%">
-              Close
-            </Button>
-          </Dialog.Footer>
+          <Dialog.Footer />
         </Dialog.Content>
       </Dialog.Positioner>
     </Dialog.Root>

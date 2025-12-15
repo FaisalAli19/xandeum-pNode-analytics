@@ -1,4 +1,4 @@
-import { Box, Skeleton, Table } from '@chakra-ui/react';
+import { Box, Skeleton, Table } from "@chakra-ui/react";
 
 export const SkeletonLoader = () => {
   return (
@@ -23,32 +23,72 @@ export const SkeletonLoader = () => {
             <Table.ColumnHeader>Action</Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
-        <Table.Body>
+        <Table.Body className="loader">
           {Array.from({ length: 5 }).map((_, idx) => (
             <Table.Row key={idx}>
               <Table.Cell>
-                <Skeleton height="16px" width="120px" />
+                <Skeleton
+                  height="24px"
+                  width="100%"
+                  bg="gray.100"
+                  opacity={0.2}
+                />
               </Table.Cell>
               <Table.Cell>
-                <Skeleton height="16px" width="80px" />
+                <Skeleton
+                  height="24px"
+                  width="100%"
+                  bg="gray.100"
+                  opacity={0.2}
+                />
               </Table.Cell>
               <Table.Cell>
-                <Skeleton height="16px" width="100px" />
+                <Skeleton
+                  height="24px"
+                  width="100%"
+                  bg="gray.100"
+                  opacity={0.2}
+                />
               </Table.Cell>
               <Table.Cell>
-                <Skeleton height="16px" width="100px" />
+                <Skeleton
+                  height="24px"
+                  width="100%"
+                  bg="gray.100"
+                  opacity={0.2}
+                />
               </Table.Cell>
               <Table.Cell>
-                <Skeleton height="16px" width="110px" />
+                <Skeleton
+                  height="24px"
+                  width="100%"
+                  bg="gray.100"
+                  opacity={0.2}
+                />
               </Table.Cell>
               <Table.Cell>
-                <Skeleton height="16px" width="130px" />
+                <Skeleton
+                  height="24px"
+                  width="100%"
+                  bg="gray.100"
+                  opacity={0.2}
+                />
               </Table.Cell>
               <Table.Cell>
-                <Skeleton height="16px" width="80px" />
+                <Skeleton
+                  height="24px"
+                  width="100%"
+                  bg="gray.100"
+                  opacity={0.2}
+                />
               </Table.Cell>
               <Table.Cell>
-                <Skeleton height="16px" width="70px" />
+                <Skeleton
+                  height="24px"
+                  width="100%"
+                  bg="gray.100"
+                  opacity={0.2}
+                />
               </Table.Cell>
             </Table.Row>
           ))}

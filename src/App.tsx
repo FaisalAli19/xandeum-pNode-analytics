@@ -1,18 +1,19 @@
-import { Box, Text } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
-import { pNodeStore } from './store/pNodeStore';
-import { useFetchPods } from './hooks/useFetchPods';
-import { applyFilters } from './utils/filters';
-import type { PNodeStoreState, SortKey, FilterStatus } from './types';
-import { Header } from './components/Header';
-import { StatsCards } from './components/StatsCards';
-import { SearchBar } from './components/SearchBar';
-import { FilterTabs } from './components/FilterTabs';
-import { PNodeTable } from './components/PNodeTable';
-import { PNodeModal } from './components/PNodeModal';
-import { Pagination } from './components/Pagination';
-import { SkeletonLoader } from './components/SkeletonLoader';
-import { Toaster } from './components/ui/toaster';
+import { Box, Flex, Text } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { pNodeStore } from "./store/pNodeStore";
+import { useFetchPods } from "./hooks/useFetchPods";
+import { applyFilters } from "./utils/filters";
+import type { PNodeStoreState, SortKey, FilterStatus } from "./types";
+import { Header } from "./components/Header";
+import { StatsCards } from "./components/StatsCards";
+import { SearchBar } from "./components/SearchBar";
+import { FilterTabs } from "./components/FilterTabs";
+import { PNodeTable } from "./components/PNodeTable";
+import { PNodeModal } from "./components/PNodeModal";
+import { Pagination } from "./components/Pagination";
+import { SkeletonLoader } from "./components/SkeletonLoader";
+import { Footer } from "./components/Footer";
+import { Toaster } from "./components/ui/toaster";
 
 function App() {
   return (
@@ -47,12 +48,13 @@ function Main() {
 
   // Timer countdown effect (syncs with 60s polling)
   useEffect(() => {
+    // Don't countdown if loading
+    if (isLoading || state.loading) return;
+
     const timer = setInterval(() => {
       setTimeUntilRefresh((prev) => {
-        if (prev === 0) {
-          // Reset to 59 when data refetches
-          setRefreshProgress(100);
-          return 59;
+        if (prev <= 0) {
+          return 0; // Stay at 0 until data fetch completes and resets this
         }
         const newVal = prev - 1;
         // Progress decreases as countdown decreases: 100% at 59s, 0% at 0s
@@ -62,7 +64,7 @@ function Main() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [isLoading, state.loading]);
 
   // Reset timer when data is fetched
   useEffect(() => {
@@ -102,7 +104,9 @@ function Main() {
   const handleSort = (key: SortKey) => {
     const currentState = pNodeStore.getState();
     const newOrder =
-      currentState.sortBy === key && currentState.sortOrder === 'asc' ? 'desc' : 'asc';
+      currentState.sortBy === key && currentState.sortOrder === "asc"
+        ? "desc"
+        : "asc";
     pNodeStore.setState({ sortBy: key, sortOrder: newOrder, currentPage: 1 });
     const filtered = applyFilters(currentState.pNodes, {
       filterStatus: currentState.filterStatus,
@@ -117,7 +121,7 @@ function Main() {
     refetch();
   };
 
-  const handleSelectPNode = (pNode: PNodeStoreState['selectedPNode']) => {
+  const handleSelectPNode = (pNode: PNodeStoreState["selectedPNode"]) => {
     if (!pNode) return;
     pNodeStore.setState({ selectedPNode: pNode });
     setShowModal(true);
@@ -125,27 +129,46 @@ function Main() {
 
   const stats = {
     totalPNodes: state.pNodes.length,
-    activePNodes: state.pNodes.filter((p) => p.status === 'active').length,
+    activePNodes: state.pNodes.filter((p) => p.status === "active").length,
     avgUptime:
       state.pNodes.length > 0
-        ? (state.pNodes.reduce((sum, p) => sum + p.uptime, 0) / state.pNodes.length).toFixed(2)
-        : '0',
+        ? (
+            state.pNodes.reduce((sum, p) => sum + p.uptime, 0) /
+            state.pNodes.length
+          ).toFixed(2)
+        : "0",
     avgPerformance:
       state.pNodes.length > 0
-        ? (state.pNodes.reduce((sum, p) => sum + p.performance, 0) / state.pNodes.length).toFixed(2)
-        : '0',
+        ? (
+            state.pNodes.reduce((sum, p) => sum + p.performance, 0) /
+            state.pNodes.length
+          ).toFixed(2)
+        : "0",
   };
 
   const startIdx = (state.currentPage - 1) * state.itemsPerPage;
   const endIdx = startIdx + state.itemsPerPage;
   const paginatedPNodes = state.filteredPNodes.slice(startIdx, endIdx);
-  const totalPages = Math.ceil(state.filteredPNodes.length / state.itemsPerPage);
+  const totalPages = Math.ceil(
+    state.filteredPNodes.length / state.itemsPerPage
+  );
 
   return (
-    <Box>
-      <Header activePNodes={stats.activePNodes} lastUpdated={state.lastUpdated} />
+    <Flex direction="column" minH="100vh">
+      <Header
+        activePNodes={stats.activePNodes}
+        lastUpdated={state.lastUpdated}
+      />
 
-      <Box as="main" maxW="1400px" mx="auto" px="20" py="20">
+      <Box
+        as="main"
+        flex="1"
+        maxW="1400px"
+        mx="auto"
+        px="20"
+        py="20"
+        width="100%"
+      >
         {(state.error || fetchError) && (
           <Box
             bg="rgba(255, 84, 89, 0.1)"
@@ -176,37 +199,41 @@ function Main() {
           pNodes={state.pNodes}
         />
 
-        {(state.loading || isLoading) && state.pNodes.length === 0 && (
+        {state.loading || isLoading ? (
           <Box>
-            <Text textAlign="center" color="fg.muted" mb="16" fontSize="sm">
-              ⏳ Loading pNodes...
-            </Text>
+            <Box
+              mb="16"
+              textAlign="center"
+              color="fg.muted"
+              fontSize="sm"
+              minH="24px"
+            >
+              {state.pNodes.length === 0
+                ? "⏳ Loading pNodes..."
+                : "Refreshing data..."}
+            </Box>
             <SkeletonLoader />
           </Box>
-        )}
+        ) : (
+          state.pNodes.length > 0 && (
+            <>
+              <PNodeTable
+                pNodes={paginatedPNodes}
+                sortBy={state.sortBy}
+                sortOrder={state.sortOrder}
+                onSort={handleSort}
+                onView={handleSelectPNode}
+              />
 
-        {(state.loading || isLoading) && state.pNodes.length > 0 && (
-          <Box opacity={0.6} pointerEvents="none">
-            <SkeletonLoader />
-          </Box>
-        )}
-
-        {!state.loading && !isLoading && state.pNodes.length > 0 && (
-          <>
-            <PNodeTable
-              pNodes={paginatedPNodes}
-              sortBy={state.sortBy}
-              sortOrder={state.sortOrder}
-              onSort={handleSort}
-              onView={handleSelectPNode}
-            />
-
-            <Pagination
-              currentPage={state.currentPage}
-              totalPages={totalPages}
-              onPageChange={(page) => pNodeStore.setState({ currentPage: page })}
-            />
-          </>
+              <Pagination
+                currentPage={state.currentPage}
+                totalPages={totalPages}
+                onPageChange={(page) =>
+                  pNodeStore.setState({ currentPage: page })
+                }
+              />
+            </>
+          )
         )}
 
         {!state.loading && state.pNodes.length === 0 && !state.error && (
@@ -215,7 +242,8 @@ function Main() {
               📭
             </Text>
             <Text>
-              No pNodes found. Make sure the pRPC endpoint is running at http://127.0.0.1:6000/rpc
+              No pNodes found. Make sure the pRPC endpoint is running at
+              http://127.0.0.1:6000/rpc
             </Text>
           </Box>
         )}
@@ -228,7 +256,8 @@ function Main() {
       />
 
       <Toaster />
-    </Box>
+      <Footer />
+    </Flex>
   );
 }
 
