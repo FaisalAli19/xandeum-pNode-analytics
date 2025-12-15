@@ -1,4 +1,4 @@
-import type { PNodeStoreState } from '@/types';
+import type { PNodeStoreState } from "@/types";
 
 type Listener = (state: PNodeStoreState) => void;
 
@@ -10,10 +10,10 @@ class PNodeStore {
     error: null,
     lastUpdated: null,
     selectedPNode: null,
-    searchQuery: '',
-    sortBy: 'identity',
-    sortOrder: 'asc',
-    filterStatus: 'all',
+    searchQuery: "",
+    sortBy: "status",
+    sortOrder: "asc",
+    filterStatus: "active",
     currentPage: 1,
     itemsPerPage: 10,
   };

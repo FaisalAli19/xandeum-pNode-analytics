@@ -1,4 +1,4 @@
-import { Box, Button, SimpleGrid, Text } from "@chakra-ui/react";
+import { Box, Button, SimpleGrid, Text, Skeleton } from "@chakra-ui/react";
 import { useMemo } from "react";
 import {
   PieChart,
@@ -9,6 +9,7 @@ import {
   Legend,
   RadialBarChart,
   RadialBar,
+  PolarAngleAxis,
 } from "recharts";
 import type { PNode } from "../types";
 
@@ -23,6 +24,7 @@ interface AnalyticsChartsProps {
     avgUptime: string;
     avgPerformance: string;
   };
+  loading?: boolean;
 }
 
 // Custom Tooltip for Charts
@@ -37,7 +39,7 @@ const CustomTooltip = ({ active, payload }: any) => {
         borderColor="gray.600"
         borderRadius="md"
         boxShadow="dark-lg"
-        zIndex={9999}
+        zIndex={99999}
       >
         <Text color="white" fontWeight="bold" mb="1">
           {payload[0].name}
@@ -62,6 +64,7 @@ export function AnalyticsCharts({
   onRefresh,
   isRefreshing,
   stats,
+  loading = false,
 }: AnalyticsChartsProps) {
   // 1. Network Status (Active vs Inactive)
   const statusData = useMemo(() => {
@@ -128,50 +131,68 @@ export function AnalyticsCharts({
           Network Status
         </Text>
         <Box h="220px" w="100%" position="relative">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={statusData}
-                cx="50%"
-                cy="50%"
-                innerRadius={50}
-                outerRadius={70}
-                paddingAngle={5}
-                dataKey="value"
-                stroke="none"
-                isAnimationActive={false}
+          {loading ? (
+            <Skeleton height="100%" width="100%" borderRadius="full" />
+          ) : (
+            <>
+              {/* Box positioned absolute but with low z-index so tooltip covers it */}
+              <Box
+                position="absolute"
+                top="50%"
+                left="50%"
+                transform="translate(-50%, -50%)"
+                textAlign="center"
+                pointerEvents="none"
+                zIndex={0}
               >
-                {statusData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip
-                content={<CustomTooltip />}
-                cursor={{ fill: "transparent" }}
-              />
-              <Legend
-                verticalAlign="bottom"
-                height={36}
-                iconSize={8}
-                wrapperStyle={{ fontSize: "12px" }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-          <Box
-            position="absolute"
-            top="50%"
-            left="50%"
-            transform="translate(-50%, -50%)"
-            textAlign="center"
-            pointerEvents="none"
-          >
-            <Text fontSize="2xl" fontWeight="bold" color="white" lineHeight="1">
-              {pNodes.length}
-            </Text>
-            <Text fontSize="xs" color="gray.400">
-              Nodes
-            </Text>
-          </Box>
+                <Text
+                  fontSize="2xl"
+                  fontWeight="bold"
+                  color="white"
+                  lineHeight="1"
+                >
+                  {pNodes.length}
+                </Text>
+                <Text fontSize="xs" color="gray.400">
+                  Nodes
+                </Text>
+              </Box>
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
+                style={{ zIndex: 1 }}
+              >
+                <PieChart>
+                  <Pie
+                    data={statusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={70}
+                    paddingAngle={5}
+                    dataKey="value"
+                    stroke="none"
+                    isAnimationActive={false}
+                  >
+                    {statusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    content={<CustomTooltip />}
+                    cursor={{ fill: "transparent" }}
+                    wrapperStyle={{ zIndex: 1000 }}
+                  />
+                  <Legend
+                    verticalAlign="bottom"
+                    height={36}
+                    iconSize={8}
+                    wrapperStyle={{ fontSize: "12px" }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </>
+          )}
         </Box>
       </Box>
 
@@ -199,46 +220,44 @@ export function AnalyticsCharts({
           Network Averages
         </Text>
         <Box h="220px" w="100%" position="relative">
-          <ResponsiveContainer width="100%" height="100%">
-            <RadialBarChart
-              cx="50%"
-              cy="50%"
-              innerRadius="30%"
-              outerRadius="90%"
-              barSize={15}
-              data={avgData}
-              startAngle={180}
-              endAngle={0}
-            >
-              <RadialBar
-                label={{ position: "insideStart", fill: "#fff", fontSize: 10 }}
-                background={{ fill: "rgba(255,255,255,0.05)" }}
-                dataKey="value"
-                cornerRadius={10}
-                isAnimationActive={false}
-              />
-              <Legend
-                iconSize={8}
-                verticalAlign="bottom"
-                wrapperStyle={{ fontSize: "12px" }}
-              />
-              <Tooltip
-                content={<CustomTooltip />}
-                cursor={{ fill: "transparent" }}
-              />
-            </RadialBarChart>
-          </ResponsiveContainer>
-          {/* Centered Label for Radial */}
-          <Box
-            position="absolute"
-            bottom="35%"
-            left="50%"
-            transform="translate(-50%, 0)"
-            textAlign="center"
-            pointerEvents="none"
-          >
-            {/* Empty center as radial bars fill it, or put avg score here? */}
-          </Box>
+          {loading ? (
+            <Skeleton height="100%" width="100%" borderRadius="full" />
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <RadialBarChart
+                cx="50%"
+                cy="70%"
+                innerRadius="40%"
+                outerRadius="100%"
+                barSize={24}
+                data={avgData}
+                startAngle={180}
+                endAngle={0}
+              >
+                <PolarAngleAxis
+                  type="number"
+                  domain={[0, 100]}
+                  angleAxisId={0}
+                  tick={false}
+                />
+                <RadialBar
+                  background={{ fill: "rgba(255,255,255,0.05)" }}
+                  dataKey="value"
+                  isAnimationActive={false}
+                />
+                <Legend
+                  iconSize={8}
+                  verticalAlign="bottom"
+                  wrapperStyle={{ fontSize: "12px" }}
+                />
+                <Tooltip
+                  content={<CustomTooltip />}
+                  cursor={{ fill: "transparent" }}
+                  wrapperStyle={{ zIndex: 1000 }}
+                />
+              </RadialBarChart>
+            </ResponsiveContainer>
+          )}
         </Box>
       </Box>
 
@@ -288,46 +307,58 @@ export function AnalyticsCharts({
         </Box>
 
         <Box h="220px" w="100%" position="relative">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={timerData}
-                cx="50%"
-                cy="70%"
-                startAngle={180}
-                endAngle={0}
-                innerRadius={60}
-                outerRadius={85}
-                dataKey="value"
-                stroke="none"
-                isAnimationActive={false}
+          {loading ? (
+            <Skeleton height="100%" width="100%" borderRadius="full" />
+          ) : (
+            <>
+              {/* Timer Text - behind chart layer so tooltip works */}
+              <Box
+                position="absolute"
+                top="65%"
+                left="50%"
+                transform="translate(-50%, -50%)"
+                textAlign="center"
+                pointerEvents="none"
+                zIndex={0}
               >
-                {timerData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-          <Box
-            position="absolute"
-            top="65%"
-            left="50%"
-            transform="translate(-50%, -50%)"
-            textAlign="center"
-            pointerEvents="none"
-          >
-            <Text
-              fontSize="3xl"
-              fontWeight="bold"
-              color="teal.300"
-              lineHeight="1"
-            >
-              {timeUntilRefresh}s
-            </Text>
-            <Text fontSize="xs" color="gray.400" mt="1">
-              Until Update
-            </Text>
-          </Box>
+                <Text
+                  fontSize="3xl"
+                  fontWeight="bold"
+                  color="teal.300"
+                  lineHeight="1"
+                >
+                  {timeUntilRefresh}s
+                </Text>
+                <Text fontSize="xs" color="gray.400" mt="1">
+                  Until Update
+                </Text>
+              </Box>
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
+                style={{ zIndex: 1 }}
+              >
+                <PieChart>
+                  <Pie
+                    data={timerData}
+                    cx="50%"
+                    cy="70%"
+                    startAngle={180}
+                    endAngle={0}
+                    innerRadius={60}
+                    outerRadius={85}
+                    dataKey="value"
+                    stroke="none"
+                    isAnimationActive={false}
+                  >
+                    {timerData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            </>
+          )}
         </Box>
       </Box>
     </SimpleGrid>

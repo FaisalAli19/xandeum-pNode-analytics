@@ -154,10 +154,7 @@ function Main() {
 
   return (
     <Flex direction="column" minH="100vh">
-      <Header
-        activePNodes={stats.activePNodes}
-        lastUpdated={state.lastUpdated}
-      />
+      <Header />
 
       <Box
         as="main"
@@ -190,6 +187,7 @@ function Main() {
             timeUntilRefresh={timeUntilRefresh}
             onRefresh={handleRefresh}
             isRefreshing={state.loading || isLoading}
+            loading={state.loading && state.pNodes.length === 0} // Only show skeleton on initial load or if no data
           />
         )}
 
