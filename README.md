@@ -8,18 +8,16 @@ The pNode Analytics Dashboard provides real-time monitoring and analytics for pe
 
 ## Features
 
-- **Real-time Monitoring**: Auto-refreshing dashboard with 60-second countdown timer
+- **Real-time Monitoring**: Auto-refreshing dashboard with 60-second countdown
+- **Visual Analytics**: Interactive charts for Network Status, Network Averages, and Refresh Timer
 - **Comprehensive Metrics**: Track status, uptime, performance, reputation, storage, and slot production
-- **Advanced Filtering**: Filter nodes by status (All, Active, Syncing, Inactive)
+- **Filtering**: Toggle between Active and Inactive nodes
 - **Search Functionality**: Search nodes by identity or peer ID
-- **Sortable Table**: Sort by any column (identity, status, uptime, performance, reputation, etc.)
+- **Sortable Table**: Sort by key columns (status, uptime, performance, reputation)
 - **Detailed View**: Click on any node to view comprehensive details in a modal
-- **Dark/Light Mode**: Toggle between dark and light themes
+- **Dark Mode UI**: Professional dark-themed interface
 - **Responsive Design**: Optimized for desktop and tablet viewing
-- **Color-coded Badges**: Visual indicators for status, uptime, performance, and reputation
-- **Gradient Progress Bars**: Visual representation of performance and uptime metrics
-- **Pagination**: Navigate through large datasets efficiently
-- **Toast Notifications**: User feedback for actions like copying peer IDs
+- **Performance Optimized**: Smoother loading states with skeleton screens
 
 ## Tech Stack
 
@@ -27,8 +25,8 @@ The pNode Analytics Dashboard provides real-time monitoring and analytics for pe
 - **TypeScript** - Type safety
 - **Vite** - Build tool and dev server
 - **Chakra UI v3** - Component library and theming
+- **Recharts** - Data visualization and charting
 - **Fontsource** - Self-hosted Inter font
-- **next-themes** - Theme management
 - **React Icons** - Icon library
 
 ## Project Structure
@@ -36,14 +34,14 @@ The pNode Analytics Dashboard provides real-time monitoring and analytics for pe
 ```
 src/
 ├── components/          # React components
-│   ├── ui/            # UI primitives (provider, color-mode, toaster)
-│   ├── Header.tsx     # Dashboard header with title and theme toggle
-│   ├── StatsCards.tsx # Statistics overview cards
-│   ├── SearchBar.tsx  # Search input component
-│   ├── FilterTabs.tsx # Status filter buttons
-│   ├── PNodeTable.tsx # Main data table
-│   ├── PNodeModal.tsx # Detailed node view modal
-│   ├── Pagination.tsx # Pagination controls
+│   ├── ui/              # UI primitives
+│   ├── Header.tsx       # Minimal dashboard header
+│   ├── AnalyticsCharts.tsx # Visual charts (Pie, Radial, Gauge)
+│   ├── SearchBar.tsx    # Search input component
+│   ├── FilterTabs.tsx   # Status filter buttons
+│   ├── PNodeTable.tsx   # Main data table
+│   ├── PNodeModal.tsx   # Detailed node view modal
+│   ├── Pagination.tsx   # Pagination controls
 │   └── SkeletonLoader.tsx # Loading skeleton
 ├── data/              # Static data files
 │   └── mockPNodes.json # Sample pNode data
@@ -52,7 +50,7 @@ src/
 ├── store/             # State management
 │   └── pNodeStore.ts  # Global state store
 ├── theme/             # Chakra UI theme configuration
-│   └── index.ts       # Custom theme definitions
+│   └── index.ts       # Custom theme definitions (Dark mode enforced)
 ├── types/             # TypeScript type definitions
 │   └── index.ts       # PNode interfaces and types
 ├── utils/             # Utility functions
@@ -61,7 +59,7 @@ src/
 │   └── format.ts      # Data formatting utilities
 ├── App.tsx            # Main application component
 ├── main.tsx           # Application entry point
-└── index.css          # Global styles (minimal, mostly theme-based)
+└── index.css          # Global styles
 ```
 
 ## Prerequisites
@@ -154,39 +152,32 @@ yarn preview
 
 ### Viewing Nodes
 
-- The dashboard displays all pNodes in a sortable table
+- The dashboard displays pNodes in a sortable table
 - Click on any row to view detailed information in a modal
 - Use the search bar to filter nodes by identity or peer ID
-- Use the filter tabs to show only nodes with specific statuses
+- Use the filter tabs to toggle between **Active** and **Inactive** views
 
 ### Sorting
 
-- Click on any column header to sort by that column
+- Click on column headers (Status, Uptime, etc.) to sort by that column
 - Click again to reverse the sort order
-- The current sort column and direction are indicated by arrows
+- _Note: Identity sorting is disabled by default_
 
 ### Filtering
 
-- **All**: Shows all nodes regardless of status
-- **Active**: Shows only active nodes
-- **Syncing**: Shows only syncing nodes
+- **Active**: Shows only active nodes (Default)
 - **Inactive**: Shows only inactive nodes
-
-### Dark/Light Mode
-
-- Click the theme toggle button in the header to switch between dark and light modes
-- Your preference is automatically saved
 
 ### Copying Peer ID
 
-- In the detailed modal view, click the copy icon next to the Peer ID
+- In the detailed modal view, click the copy icon next to the Peer ID or Public Key
 - A toast notification will confirm the copy action
 
 ### Auto-refresh
 
 - The dashboard automatically refreshes every 60 seconds
-- A countdown timer and progress bar show when the next refresh will occur
-- The timer counts down from 59 seconds to 0, then refreshes and resets
+- A **Visual Gauge Chart** displays the countdown to the next refresh
+- You can manually trigger a refresh using the refresh button on the gauge chart card
 
 ## Data
 
@@ -200,7 +191,7 @@ Currently, the application uses mock data from `src/data/mockPNodes.json`. To co
 
 ### Theme
 
-Customize the theme by editing `src/theme/index.ts`:
+Customize the theme by editing `src/theme/index.ts`. The dashboard is configured to enforce a Dark Mode aesthetic.
 
 - Colors and semantic tokens
 - Typography (fonts, sizes, weights)
