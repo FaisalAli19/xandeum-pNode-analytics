@@ -261,7 +261,6 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
                   borderRadius="sm"
                   cursor="pointer"
                   onClick={handleCopyAddress}
-                  _hover={{ bg: "secondary.hover" }}
                   title={pNode.peerId}
                   gap="4"
                   transition="color 0.2s"
@@ -294,7 +293,6 @@ export const PNodeModal = ({ pNode, isOpen, onClose }: PNodeModalProps) => {
                   borderRadius="sm"
                   cursor="pointer"
                   onClick={handleCopyPubKey}
-                  _hover={{ bg: "secondary.hover" }}
                   title={pNode.identity}
                   gap="4"
                   transition="color 0.2s"
