@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import { BrowserPrpcClient } from "../utils/browserPrpcClient";
-import { transformPodsToPNodes } from "../utils/podTransform";
-import { pNodeStore } from "../store/pNodeStore";
-import { applyFilters } from "../utils/filters";
+import { useEffect, useState } from 'react';
+import { BrowserPrpcClient } from '../utils/browserPrpcClient';
+import { transformPodsToPNodes } from '../utils/podTransform';
+import { pNodeStore } from '../store/pNodeStore';
+import { applyFilters } from '../utils/filters';
 
 interface UseFetchPodsOptions {
   refetchInterval?: number;
@@ -20,7 +20,7 @@ export const useFetchPods = (options: UseFetchPodsOptions = {}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const client = new BrowserPrpcClient("proxy");
+  const client = new BrowserPrpcClient('proxy');
 
   const fetchPods = async () => {
     try {
@@ -33,7 +33,7 @@ export const useFetchPods = (options: UseFetchPodsOptions = {}) => {
       const response = await client.getPods();
 
       if (!response || !response.pods || !Array.isArray(response.pods)) {
-        throw new Error("Invalid response format: pods array not found");
+        throw new Error('Invalid response format: pods array not found');
       }
 
       // Transform API response to PNode format
@@ -57,9 +57,8 @@ export const useFetchPods = (options: UseFetchPodsOptions = {}) => {
 
       setIsLoading(false);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to fetch pods";
-      console.error("❌ Error fetching pods:", errorMessage);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch pods';
+      console.error('❌ Error fetching pods:', errorMessage);
       setError(errorMessage);
       setIsLoading(false);
 
@@ -72,6 +71,9 @@ export const useFetchPods = (options: UseFetchPodsOptions = {}) => {
 
   useEffect(() => {
     if (!enabled) return;
+
+    // Fetch immediately on mount
+    fetchPods();
 
     let intervalId: ReturnType<typeof setInterval> | null = null;
 
